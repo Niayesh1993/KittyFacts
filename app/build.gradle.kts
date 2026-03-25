@@ -77,4 +77,8 @@ dependencies {
     // Testing (Flow)
     testImplementation(libs.turbine)
     testImplementation(libs.coroutinesTest)
+
+
+    // Hilt + Compose integration
+    implementation(libs.hiltNavigationCompose)
 }
