@@ -7,9 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.zozi.kittyfacts.presentation.kittyfact.screen.KittyFactScreen
 import com.zozi.kittyfacts.presentation.theme.KittyFactsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,14 +26,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-// Keeping preview simple (no Hilt in previews)
-@Preview(showBackground = true)
-@Composable
-fun MainPreview() {
-    KittyFactsTheme {
-        KittyFactScreen()
     }
 }
