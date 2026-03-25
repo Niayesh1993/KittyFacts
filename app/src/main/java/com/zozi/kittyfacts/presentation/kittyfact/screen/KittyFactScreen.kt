@@ -21,6 +21,7 @@ import com.zozi.kittyfacts.presentation.kittyfact.viewmodel.KittyFactViewModel
 
 @Composable
 fun KittyFactScreen(
+    modifier: Modifier = Modifier,
     viewModel: KittyFactViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -30,7 +31,7 @@ fun KittyFactScreen(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center

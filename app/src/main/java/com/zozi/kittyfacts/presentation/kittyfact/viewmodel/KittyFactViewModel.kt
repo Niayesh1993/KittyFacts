@@ -33,11 +33,11 @@ class KittyFactViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
-            }.onFailure {
+            }.onFailure { throwable ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Failed to load fact"
+                        error = throwable.message ?: "Failed to load fact"
                     )
                 }
             }
