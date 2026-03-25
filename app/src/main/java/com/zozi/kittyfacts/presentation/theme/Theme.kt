@@ -1,6 +1,5 @@
-package com.zozi.kittyfacts.ui.theme
+package com.zozi.kittyfacts.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

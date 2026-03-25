@@ -1,4 +1,4 @@
-package com.zozi.kittyfacts.ui.theme
+package com.zozi.kittyfacts.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
