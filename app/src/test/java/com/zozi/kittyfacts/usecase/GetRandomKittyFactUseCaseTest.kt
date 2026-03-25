@@ -4,6 +4,7 @@ import com.zozi.kittyfacts.domain.model.KittyFact
 import com.zozi.kittyfacts.domain.repository.KittyFactRepository
 import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,7 @@ class GetRandomKittyFactUseCaseTest {
     @Test
     fun `invoke returns data from repository`() = runTest {
         // given
-        val fact = KittyFact("Cats are amazing")
+        val fact = KittyFact(12,"Cats are amazing")
         coEvery { repository.getRandomFact() } returns Result.success(fact)
 
         // when
@@ -35,5 +36,20 @@ class GetRandomKittyFactUseCaseTest {
         // then
         assertTrue(result.isSuccess)
         assertEquals("Cats are amazing", result.getOrNull()?.text)
+    }
+
+    @Test
+    fun `invoke returns failure when repository fails`() = runTest {
+        // given
+        val exception = IllegalStateException("network")
+        coEvery { repository.getRandomFact() } returns Result.failure(exception)
+
+        // when
+        val result = useCase()
+
+        // then
+        assertTrue(result.isFailure)
+        assertEquals("network", result.exceptionOrNull()?.message)
+        coVerify(exactly = 1) { repository.getRandomFact() }
     }
 }

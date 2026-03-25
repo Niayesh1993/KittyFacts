@@ -3,13 +3,18 @@ package com.zozi.kittyfacts.viewmodel
 import com.zozi.kittyfacts.domain.model.KittyFact
 import com.zozi.kittyfacts.domain.repository.KittyFactRepository
 import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
+import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
+import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
 import com.zozi.kittyfacts.presentation.kittyfact.viewmodel.KittyFactViewModel
 import com.zozi.kittyfacts.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -26,24 +31,34 @@ class KittyFactViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule(UnconfinedTestDispatcher())
 
-    private val repository: KittyFactRepository = mockk()
-    private val useCase = GetRandomKittyFactUseCase(repository)
+    private val repository: KittyFactRepository = mockk(relaxed = true)
+    private val getRandomKittyFactUseCase = GetRandomKittyFactUseCase(repository)
+    private val saveKittyFactUseCase = SaveKittyFactUseCase(repository)
+    private val getSavedKittyFactsUseCase = GetSavedKittyFactsUseCase(repository)
 
     private lateinit var viewModel: KittyFactViewModel
 
     @Before
     fun setup() {
-        viewModel = KittyFactViewModel(useCase)
+        // ViewModel initializes favorites flow immediately; stub it for all tests.
+        coEvery { repository.getSavedFacts() } returns flowOf(emptyList())
+
+        viewModel = KittyFactViewModel(
+            getRandomKittyFactUseCase,
+            saveKittyFactUseCase,
+            getSavedKittyFactsUseCase
+        )
     }
 
     @Test
     fun `fetchFact success updates state`() = runTest {
         // given
-        val fact = KittyFact("Cats sleep 16 hours a day")
+        val fact = KittyFact(12, "Cats sleep 16 hours a day")
         coEvery { repository.getRandomFact() } returns Result.success(fact)
 
         // when
         viewModel.fetchFact()
+        advanceUntilIdle()
 
         // then
         val state = viewModel.uiState.value
@@ -55,10 +70,11 @@ class KittyFactViewModelTest {
     @Test
     fun `fetchFact error updates state`() = runTest {
         // given
-        coEvery { repository.getRandomFact() } returns Result.failure(Exception())
+        coEvery { repository.getRandomFact() } returns Result.failure(Exception("Boom"))
 
         // when
         viewModel.fetchFact()
+        advanceUntilIdle()
 
         // then
         val state = viewModel.uiState.value
@@ -71,11 +87,12 @@ class KittyFactViewModelTest {
         // given
         coEvery { repository.getRandomFact() } coAnswers {
             delay(100)
-            Result.success(KittyFact("Test"))
+            Result.success(KittyFact(1, "Test"))
         }
 
         // when
         viewModel.fetchFact()
+        runCurrent()
 
         // then
         assertTrue(viewModel.uiState.value.isLoading)
