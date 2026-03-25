@@ -80,8 +80,6 @@ dependencies {
 
     // Testing (Flow)
     testImplementation(libs.turbine)
-    testImplementation(libs.coroutinesTest)
-
 
     // Hilt + Compose integration
     implementation(libs.hiltNavigationCompose)
@@ -89,8 +87,6 @@ dependencies {
     // Splash screen
     implementation(libs.androidxCoreSplashscreen)
 
-    // Navigation (optional but handy for multi-screen/tab structure)
-    implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // Material Components (needed for XML themes like Theme.Material3.*)
     implementation("com.google.android.material:material:1.12.0")
