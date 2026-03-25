@@ -4,10 +4,12 @@ import com.zozi.kittyfacts.domain.model.KittyFact
 import com.zozi.kittyfacts.domain.repository.KittyFactRepository
 import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
+import com.zozi.kittyfacts.domain.usecase.RemoveKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
 import com.zozi.kittyfacts.presentation.kittyfact.viewmodel.KittyFactViewModel
 import com.zozi.kittyfacts.util.MainDispatcherRule
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -35,6 +37,7 @@ class KittyFactViewModelTest {
     private val getRandomKittyFactUseCase = GetRandomKittyFactUseCase(repository)
     private val saveKittyFactUseCase = SaveKittyFactUseCase(repository)
     private val getSavedKittyFactsUseCase = GetSavedKittyFactsUseCase(repository)
+    private val removeKittyFactUseCase = RemoveKittyFactUseCase(repository)
 
     private lateinit var viewModel: KittyFactViewModel
 
@@ -46,7 +49,8 @@ class KittyFactViewModelTest {
         viewModel = KittyFactViewModel(
             getRandomKittyFactUseCase,
             saveKittyFactUseCase,
-            getSavedKittyFactsUseCase
+            getSavedKittyFactsUseCase,
+            removeKittyFactUseCase,
         )
     }
 
@@ -96,5 +100,42 @@ class KittyFactViewModelTest {
 
         // then
         assertTrue(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun `toggleCurrentFavorite saves when current fact isn't favorited`() = runTest {
+        // given
+        val factText = "Cats have whiskers"
+        coEvery { repository.getSavedFacts() } returns flowOf(emptyList())
+        coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, factText))
+
+        // recreate VM so favorites stateIn uses the stubbed flow
+        viewModel = KittyFactViewModel(
+            getRandomKittyFactUseCase,
+            saveKittyFactUseCase,
+            getSavedKittyFactsUseCase,
+            removeKittyFactUseCase,
+        )
+
+        viewModel.fetchFact()
+        advanceUntilIdle()
+
+        // when
+        viewModel.toggleCurrentFavorite()
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) { repository.saveFact(match { it.text == factText }) }
+        coVerify(exactly = 0) { repository.removeFactByText(any()) }
+    }
+
+    @Test
+    fun `removeFavoriteById calls repository removeFactById`() = runTest {
+        // when
+        viewModel.removeFavoriteById(7L)
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) { repository.removeFactById(7L) }
     }
 }
