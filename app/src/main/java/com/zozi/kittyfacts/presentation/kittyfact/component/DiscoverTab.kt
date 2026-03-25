@@ -26,7 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.zozi.kittyfacts.R
 import com.zozi.kittyfacts.presentation.kittyfact.state.KittyFactUiState
 
 @Composable
@@ -47,12 +49,12 @@ fun DiscoverTab(
             )
             Spacer(modifier = Modifier.padding(start = 8.dp))
             Text(
-                text = "Cat Fact",
+                text = stringResource(R.string.discover_title),
                 style = MaterialTheme.typography.headlineMedium
             )
         }
         Text(
-            text = "Did you know?",
+            text = stringResource(R.string.discover_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -106,7 +108,7 @@ fun DiscoverTab(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     )
                 ) {
-                    Text("New Fact")
+                    Text(stringResource(R.string.new_fact))
                 }
 
                 IconButton(
@@ -115,7 +117,7 @@ fun DiscoverTab(
                 ) {
                     Icon(
                         imageVector = if (isFavorited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite",
+                        contentDescription = stringResource(R.string.favorite),
                         tint = if (isFavorited) androidx.compose.ui.graphics.Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -125,11 +127,10 @@ fun DiscoverTab(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Tap ♡ to save your favorites",
+            text = stringResource(R.string.tap_heart_to_save),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
-

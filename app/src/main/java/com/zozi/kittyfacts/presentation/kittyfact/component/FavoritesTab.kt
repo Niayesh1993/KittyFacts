@@ -11,7 +11,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.zozi.kittyfacts.R
 import com.zozi.kittyfacts.domain.model.KittyFact
 
 @Composable
@@ -22,14 +25,14 @@ fun FavoritesTab(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = "Your Collection",
+            text = stringResource(R.string.favorites_title),
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "${favorites.size} saved facts • Available offline",
+            text = "${pluralStringResource(R.plurals.favorites_saved_facts, favorites.size, favorites.size)} • ${stringResource(R.string.available_offline)}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -53,4 +56,3 @@ fun FavoritesTab(
         }
     }
 }
-

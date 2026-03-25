@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.zozi.kittyfacts.R
 import androidx.compose.ui.unit.dp
 
 /**
@@ -52,7 +54,7 @@ fun KittyFactsHome(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 SegmentedTabItem(
                     selected = selectedTab == 0,
-                    text = "Discover",
+                    text = stringResource(R.string.tab_discover),
                     onClick = { selectedTab = 0 },
                     leadingIcon = {
                         Icon(
@@ -66,7 +68,7 @@ fun KittyFactsHome(
 
                 SegmentedTabItem(
                     selected = selectedTab == 1,
-                    text = "Favorites",
+                    text = stringResource(R.string.tab_favorites),
                     onClick = { selectedTab = 1 },
                     leadingIcon = {
                         Icon(
@@ -145,4 +147,3 @@ private fun RowScope.SegmentedTabItem(
         }
     }
 }
-

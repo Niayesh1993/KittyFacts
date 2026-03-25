@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.zozi.kittyfacts.R
 import com.zozi.kittyfacts.domain.model.KittyFact
 
 @Composable
@@ -69,7 +71,7 @@ fun FavoritesItemCard(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete favorite",
+                    contentDescription = stringResource(R.string.delete_favorite),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.80f),
                     modifier = Modifier.size(16.dp)
                 )
@@ -77,4 +79,3 @@ fun FavoritesItemCard(
         }
     }
 }
-

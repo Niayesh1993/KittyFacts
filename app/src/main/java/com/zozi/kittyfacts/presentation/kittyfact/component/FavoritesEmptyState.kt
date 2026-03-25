@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.zozi.kittyfacts.R
 
 @Composable
 fun FavoritesEmptyState(
@@ -51,7 +53,7 @@ fun FavoritesEmptyState(
         Spacer(modifier = Modifier.height(22.dp))
 
         Text(
-            text = "No favorites yet",
+            text = stringResource(R.string.no_favorites_yet),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -60,7 +62,7 @@ fun FavoritesEmptyState(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Tap the heart icon to save your favorite facts",
+            text = stringResource(R.string.no_favorites_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.70f),
             textAlign = TextAlign.Center,
@@ -70,4 +72,3 @@ fun FavoritesEmptyState(
         )
     }
 }
-

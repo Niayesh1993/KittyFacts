@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">KittyFacts</string>
+
+    <!-- Tabs -->
+    <string name="tab_discover">Discover</string>
+    <string name="tab_favorites">Favorites</string>
+
+    <!-- Discover -->
+    <string name="discover_title">Cat Fact</string>
+    <string name="discover_subtitle">Did you know?</string>
+    <string name="new_fact">New Fact</string>
+    <string name="favorite">Favorite</string>
+    <string name="tap_heart_to_save">Tap ♡ to save your favorites</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Your Collection</string>
+    <plurals name="favorites_saved_facts">
+        <item quantity="one">%d saved fact</item>
+        <item quantity="other">%d saved facts</item>
+    </plurals>
+    <string name="available_offline">Available offline</string>
+    <string name="delete_favorite">Delete favorite</string>
+
+    <!-- Empty favorites -->
+    <string name="no_favorites_yet">No favorites yet</string>
+    <string name="no_favorites_hint">Tap the heart icon to save your favorite facts</string>
+
+    <!-- Errors -->
+    <string name="error_failed_to_load_fact">Failed to load fact</string>
 </resources>
