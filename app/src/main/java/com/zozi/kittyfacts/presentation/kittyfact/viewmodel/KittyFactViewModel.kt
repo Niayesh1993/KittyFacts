@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.zozi.kittyfacts.domain.model.KittyFact
 import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
+import com.zozi.kittyfacts.domain.usecase.RemoveKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
 import com.zozi.kittyfacts.presentation.kittyfact.state.KittyFactUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class KittyFactViewModel @Inject constructor(
     private val getRandomKittyFact: GetRandomKittyFactUseCase,
     private val saveFact: SaveKittyFactUseCase,
-    private val getSavedFacts: GetSavedKittyFactsUseCase
+    private val getSavedFacts: GetSavedKittyFactsUseCase,
+    private val removeFact: RemoveKittyFactUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(KittyFactUiState())
@@ -60,6 +62,26 @@ class KittyFactViewModel @Inject constructor(
             viewModelScope.launch {
                 saveFact(KittyFact(text = factText))
             }
+        }
+    }
+
+    fun toggleCurrentFavorite() {
+        val factText = _uiState.value.fact
+        if (factText.isBlank()) return
+
+        viewModelScope.launch {
+            val isAlreadyFavorite = favorites.value.any { it.text == factText }
+            if (isAlreadyFavorite) {
+                removeFact.byText(factText)
+            } else {
+                saveFact(KittyFact(text = factText))
+            }
+        }
+    }
+
+    fun removeFavoriteById(id: Long) {
+        viewModelScope.launch {
+            removeFact.byId(id)
         }
     }
 }

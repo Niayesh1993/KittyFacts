@@ -15,4 +15,10 @@ interface KittyFactDao {
 
     @Query("SELECT * FROM kitty_facts ORDER BY id DESC")
     fun getAllFacts(): Flow<List<KittyFactEntity>>
+
+    @Query("DELETE FROM kitty_facts WHERE id = :id")
+    suspend fun deleteFactById(id: Long)
+
+    @Query("DELETE FROM kitty_facts WHERE text = :text")
+    suspend fun deleteFactByText(text: String)
 }

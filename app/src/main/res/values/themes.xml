@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.KittyFacts" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.KittyFacts" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <!-- Splash theme shown before Compose renders -->
+    <style name="Theme.KittyFacts.Splash" parent="Theme.SplashScreen">
+        <!-- Pre-Android 12 fallback (also fine on 12+) -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+
+        <!-- Android 12+ SplashScreen API attributes (backported by androidx.core:splashscreen) -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.KittyFacts</item>
+    </style>
+
 </resources>

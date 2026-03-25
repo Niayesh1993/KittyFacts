@@ -2,10 +2,10 @@ package com.zozi.kittyfacts.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Brand palette
+val WarmCream = Color(0xFFFFF3E8)      // background
+val KittyOrange = Color(0xFFE07B30)    // primary
+val KittyOrangeLight = Color(0xFFF5A067) // secondary
+val KittyOrangeDark = Color(0xFFC0522A)  // accent/tertiary
+val KittyBrown = Color(0xFF2D1A0E)     // foreground
+val KittyWhite = Color(0xFFFFFFFF)
