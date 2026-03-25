@@ -8,11 +8,8 @@ plugins {
 
 android {
     namespace = "com.zozi.kittyfacts"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zozi.kittyfacts"
@@ -37,6 +34,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
     buildFeatures {
         compose = true
     }
@@ -60,4 +62,19 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofitConverterMoshi)
+    implementation(libs.okhttp)
+    implementation(libs.okhttpLoggingInterceptor)
+
+    // Room
+    implementation(libs.androidxRoomRuntime)
+    implementation(libs.androidxRoomKtx)
+    ksp(libs.androidxRoomCompiler)
+
+    // Testing (Flow)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutinesTest)
 }
