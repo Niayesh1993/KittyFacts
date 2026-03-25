@@ -30,10 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.zozi.kittyfacts.R
-import androidx.compose.ui.unit.dp
+import com.zozi.kittyfacts.presentation.theme.KittyDimens
 
 /**
- * Simple 2-tab container (Discover / Favorites) matching the provided UI direction.
+ * Simple 2-tab container (Discover / Favorites)
  * This is intentionally lightweight and doesn't depend on Navigation.
  */
 @Composable
@@ -49,9 +49,9 @@ fun KittyFactsHome(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(KittyDimens.space16)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(KittyDimens.space12), modifier = Modifier.fillMaxWidth()) {
                 SegmentedTabItem(
                     selected = selectedTab == 0,
                     text = stringResource(R.string.tab_discover),
@@ -61,7 +61,7 @@ fun KittyFactsHome(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(KittyDimens.icon18)
                         )
                     }
                 )
@@ -75,7 +75,7 @@ fun KittyFactsHome(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(KittyDimens.icon18)
                         )
                     },
                     trailing = {
@@ -89,14 +89,14 @@ fun KittyFactsHome(
                                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                         shape = CircleShape
                                     )
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    .padding(horizontal = KittyDimens.space10, vertical = KittyDimens.space4)
                             )
                         }
                     }
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(KittyDimens.space16))
 
             when (selectedTab) {
                 0 -> discover()
@@ -125,13 +125,13 @@ private fun RowScope.SegmentedTabItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = KittyDimens.space16, vertical = KittyDimens.space12),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leadingIcon != null) {
                 leadingIcon()
-                Spacer(modifier = Modifier.size(8.dp))
+                Spacer(modifier = Modifier.size(KittyDimens.space8))
             }
 
             Text(
@@ -141,7 +141,7 @@ private fun RowScope.SegmentedTabItem(
             )
 
             if (trailing != null) {
-                Spacer(modifier = Modifier.size(10.dp))
+                Spacer(modifier = Modifier.size(KittyDimens.space10))
                 trailing()
             }
         }
