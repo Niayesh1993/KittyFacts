@@ -138,4 +138,33 @@ class KittyFactViewModelTest {
         // then
         coVerify(exactly = 1) { repository.removeFactById(7L) }
     }
+
+    @Test
+    fun `toggleCurrentFavorite does nothing when there is an error even if a previous fact exists`() = runTest {
+        // given - first a successful fetch to populate a fact
+        val oldFactText = "Old fact"
+        coEvery { repository.getRandomFact() } returnsMany listOf(
+            Result.success(KittyFact(1, oldFactText)),
+            Result.failure(Exception("offline")),
+        )
+
+        // when - fetch succeeds
+        viewModel.fetchFact()
+        advanceUntilIdle()
+        assertEquals(oldFactText, viewModel.uiState.value.fact)
+        assertNull(viewModel.uiState.value.errorResId)
+
+        // when - fetch fails (connection lost)
+        viewModel.fetchFact()
+        advanceUntilIdle()
+        assertNotNull(viewModel.uiState.value.errorResId)
+
+        // when - user taps heart while error is shown
+        viewModel.toggleCurrentFavorite()
+        advanceUntilIdle()
+
+        // then - should NOT save/remove anything
+        coVerify(exactly = 0) { repository.saveFact(any()) }
+        coVerify(exactly = 0) { repository.removeFactByText(any()) }
+    }
 }

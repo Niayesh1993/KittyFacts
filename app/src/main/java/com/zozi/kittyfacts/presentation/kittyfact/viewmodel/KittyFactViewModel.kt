@@ -58,7 +58,12 @@ class KittyFactViewModel @Inject constructor(
     }
 
     fun saveCurrentFact() {
-        val factText = _uiState.value.fact
+        val ui = _uiState.value
+        val factText = ui.fact
+
+        // Don't allow saving while loading or when the current screen is showing an error.
+        if (ui.isLoading || ui.errorResId != null) return
+
         if (factText.isNotEmpty()) {
             viewModelScope.launch {
                 saveFact(KittyFact(text = factText))
@@ -67,7 +72,12 @@ class KittyFactViewModel @Inject constructor(
     }
 
     fun toggleCurrentFavorite() {
-        val factText = _uiState.value.fact
+        val ui = _uiState.value
+        val factText = ui.fact
+
+        // Don't allow toggling while loading or when the current screen is showing an error.
+        if (ui.isLoading || ui.errorResId != null) return
+
         if (factText.isBlank()) return
 
         viewModelScope.launch {
