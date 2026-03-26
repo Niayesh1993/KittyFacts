@@ -167,4 +167,18 @@ class KittyFactViewModelTest {
         coVerify(exactly = 0) { repository.saveFact(any()) }
         coVerify(exactly = 0) { repository.removeFactByText(any()) }
     }
+
+    @Test
+    fun `ensureInitialFactLoaded triggers fetch only once`() = runTest {
+        // given
+        coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, "Init"))
+
+        // when
+        viewModel.ensureInitialFactLoaded()
+        viewModel.ensureInitialFactLoaded()
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) { repository.getRandomFact() }
+    }
 }

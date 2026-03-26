@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class KittyFactViewModel @Inject constructor(
     private val getRandomKittyFact: GetRandomKittyFactUseCase,
-    private val saveFact: SaveKittyFactUseCase,
+    private val saveKittyFact: SaveKittyFactUseCase,
     private val getSavedFacts: GetSavedKittyFactsUseCase,
     private val removeFact: RemoveKittyFactUseCase,
 ) : ViewModel() {
@@ -31,6 +31,25 @@ class KittyFactViewModel @Inject constructor(
 
     val favorites = getSavedFacts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    /**
+     * Ensures that we trigger the initial network request at most once per ViewModel lifecycle.
+     *
+     * The screen may be recreated (e.g., rotation) and re-run effects; this method prevents
+     * duplicate API calls in those cases.
+     */
+    private var didLoadInitialFact: Boolean = false
+
+    fun ensureInitialFactLoaded() {
+        if (didLoadInitialFact) return
+        didLoadInitialFact = true
+
+        // Only fetch if we don't already have something to show.
+        val ui = _uiState.value
+        if (ui.fact.isBlank() && ui.errorResId == null && !ui.isLoading) {
+            fetchFact()
+        }
+    }
 
     fun fetchFact() {
         viewModelScope.launch {
@@ -66,7 +85,7 @@ class KittyFactViewModel @Inject constructor(
 
         if (factText.isNotEmpty()) {
             viewModelScope.launch {
-                saveFact(KittyFact(text = factText))
+                saveKittyFact(KittyFact(text = factText))
             }
         }
     }
@@ -85,7 +104,7 @@ class KittyFactViewModel @Inject constructor(
             if (isAlreadyFavorite) {
                 removeFact.byText(factText)
             } else {
-                saveFact(KittyFact(text = factText))
+                saveKittyFact(KittyFact(text = factText))
             }
         }
     }

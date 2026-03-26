@@ -24,7 +24,7 @@ fun KittyFactScreen(
     val favorites by viewModel.favorites.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchFact()
+        viewModel.ensureInitialFactLoaded()
     }
 
     KittyFactScreenContent(
