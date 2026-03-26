@@ -77,9 +77,9 @@ fun DiscoverTab(
                     }
                 }
 
-                state.error != null -> {
+                state.errorResId != null -> {
                     Text(
-                        text = state.error,
+                        text = stringResource(state.errorResId),
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.error
                     )

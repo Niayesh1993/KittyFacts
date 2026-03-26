@@ -68,7 +68,7 @@ class KittyFactViewModelTest {
         val state = viewModel.uiState.value
         assertEquals("Cats sleep 16 hours a day", state.fact)
         assertFalse(state.isLoading)
-        assertNull(state.error)
+        assertNull(state.errorResId)
     }
 
     @Test
@@ -83,7 +83,7 @@ class KittyFactViewModelTest {
         // then
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
-        assertNotNull(state.error)
+        assertNotNull(state.errorResId)
     }
 
     @Test

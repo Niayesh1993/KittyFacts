@@ -7,6 +7,7 @@ import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
 import com.zozi.kittyfacts.domain.usecase.RemoveKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
+import com.zozi.kittyfacts.presentation.kittyfact.error.KittyFactErrorMapper
 import com.zozi.kittyfacts.presentation.kittyfact.state.KittyFactUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +35,7 @@ class KittyFactViewModel @Inject constructor(
     fun fetchFact() {
         viewModelScope.launch {
 
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = true, errorResId = null) }
 
             val result = getRandomKittyFact()
 
@@ -49,7 +50,7 @@ class KittyFactViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = throwable.message ?: "Failed to load fact"
+                        errorResId = KittyFactErrorMapper.toMessageResId(throwable)
                     )
                 }
             }
