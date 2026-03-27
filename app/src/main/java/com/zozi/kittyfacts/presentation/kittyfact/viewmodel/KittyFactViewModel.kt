@@ -7,12 +7,16 @@ import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
 import com.zozi.kittyfacts.domain.usecase.RemoveKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
+import com.zozi.kittyfacts.presentation.kittyfact.composable.factory.KittyFactUiModelFactory
+import com.zozi.kittyfacts.presentation.kittyfact.composable.model.DiscoverUiModel
+import com.zozi.kittyfacts.presentation.kittyfact.composable.model.KittyFactUiModel
 import com.zozi.kittyfacts.presentation.kittyfact.error.KittyFactErrorMapper
 import com.zozi.kittyfacts.presentation.kittyfact.state.KittyFactUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,51 +26,69 @@ import javax.inject.Inject
 class KittyFactViewModel @Inject constructor(
     private val getRandomKittyFact: GetRandomKittyFactUseCase,
     private val saveKittyFact: SaveKittyFactUseCase,
-    private val getSavedFacts: GetSavedKittyFactsUseCase,
+    getSavedFacts: GetSavedKittyFactsUseCase,
     private val removeFact: RemoveKittyFactUseCase,
+    private val kittyFactUiModelFactory: KittyFactUiModelFactory
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(KittyFactUiState())
-    val uiState: StateFlow<KittyFactUiState> = _uiState
+    private val uiState = MutableStateFlow(KittyFactUiState())
 
-    val favorites = getSavedFacts()
+    private val favorites = getSavedFacts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    /**
-     * Ensures that we trigger the initial network request at most once per ViewModel lifecycle.
-     *
-     * The screen may be recreated (e.g., rotation) and re-run effects; this method prevents
-     * duplicate API calls in those cases.
-     */
-    private var didLoadInitialFact: Boolean = false
+    val kittyFactUiModel: StateFlow<KittyFactUiModel> =
+        combine(uiState, favorites) { state, favoritesList ->
+            val isFavorite = state.fact.isNotBlank() && favoritesList.any { it.text == state.fact }
 
-    fun ensureInitialFactLoaded() {
-        if (didLoadInitialFact) return
-        didLoadInitialFact = true
+            kittyFactUiModelFactory.make(
+                discover = DiscoverUiModel(
+                    fact = state.fact,
+                    isLoading = state.isLoading,
+                    errorResId = state.errorResId,
+                    isFavorite = isFavorite,
+                    onNewFact = ::fetchFact,
+                    onToggleFavorite = ::toggleCurrentFavorite,
+                ),
+                favorites = favoritesList,
+                onRemoveFavorite = ::removeFavoriteById,
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = kittyFactUiModelFactory.make(
+                discover = DiscoverUiModel(
+                    fact = "",
+                    isLoading = false,
+                    errorResId = null,
+                    isFavorite = false,
+                    onNewFact = ::fetchFact,
+                    onToggleFavorite = ::toggleCurrentFavorite,
+                ),
+                favorites = emptyList(),
+                onRemoveFavorite = ::removeFavoriteById,
+            )
+        )
 
-        // Only fetch if we don't already have something to show.
-        val ui = _uiState.value
-        if (ui.fact.isBlank() && ui.errorResId == null && !ui.isLoading) {
-            fetchFact()
-        }
+    init {
+        fetchFact()
     }
 
-    fun fetchFact() {
+    private fun fetchFact() {
         viewModelScope.launch {
 
-            _uiState.update { it.copy(isLoading = true, errorResId = null) }
+            uiState.update { it.copy(isLoading = true, errorResId = null) }
 
             val result = getRandomKittyFact()
 
             result.onSuccess { fact ->
-                _uiState.update {
+                uiState.update {
                     it.copy(
                         fact = fact.text,
                         isLoading = false
                     )
                 }
             }.onFailure { throwable ->
-                _uiState.update {
+                uiState.update {
                     it.copy(
                         isLoading = false,
                         errorResId = KittyFactErrorMapper.toMessageResId(throwable)
@@ -76,22 +98,8 @@ class KittyFactViewModel @Inject constructor(
         }
     }
 
-    fun saveCurrentFact() {
-        val ui = _uiState.value
-        val factText = ui.fact
-
-        // Don't allow saving while loading or when the current screen is showing an error.
-        if (ui.isLoading || ui.errorResId != null) return
-
-        if (factText.isNotEmpty()) {
-            viewModelScope.launch {
-                saveKittyFact(KittyFact(text = factText))
-            }
-        }
-    }
-
-    fun toggleCurrentFavorite() {
-        val ui = _uiState.value
+    private fun toggleCurrentFavorite() {
+        val ui = uiState.value
         val factText = ui.fact
 
         // Don't allow toggling while loading or when the current screen is showing an error.
@@ -110,7 +118,7 @@ class KittyFactViewModel @Inject constructor(
         }
     }
 
-    fun removeFavoriteById(id: Long) {
+    private fun removeFavoriteById(id: Long) {
         viewModelScope.launch {
             removeFact.byId(id)
         }

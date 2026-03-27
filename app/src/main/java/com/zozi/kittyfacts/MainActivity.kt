@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.zozi.kittyfacts.presentation.kittyfact.screen.KittyFactScreen
+import com.zozi.kittyfacts.presentation.kittyfact.composable.KittyFactScreen
 import com.zozi.kittyfacts.presentation.theme.KittyFactsTheme
 import dagger.hilt.android.AndroidEntryPoint
 

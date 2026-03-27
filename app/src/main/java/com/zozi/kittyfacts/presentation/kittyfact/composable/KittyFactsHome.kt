@@ -1,4 +1,4 @@
-package com.zozi.kittyfacts.presentation.kittyfact.component
+package com.zozi.kittyfacts.presentation.kittyfact.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

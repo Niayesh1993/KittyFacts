@@ -6,6 +6,7 @@ import com.zozi.kittyfacts.domain.usecase.GetRandomKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.GetSavedKittyFactsUseCase
 import com.zozi.kittyfacts.domain.usecase.RemoveKittyFactUseCase
 import com.zozi.kittyfacts.domain.usecase.SaveKittyFactUseCase
+import com.zozi.kittyfacts.presentation.kittyfact.composable.factory.KittyFactUiModelFactory
 import com.zozi.kittyfacts.presentation.kittyfact.viewmodel.KittyFactViewModel
 import com.zozi.kittyfacts.util.MainDispatcherRule
 import io.mockk.coEvery
@@ -13,16 +14,17 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,169 +40,167 @@ class KittyFactViewModelTest {
     private val saveKittyFactUseCase = SaveKittyFactUseCase(repository)
     private val getSavedKittyFactsUseCase = GetSavedKittyFactsUseCase(repository)
     private val removeKittyFactUseCase = RemoveKittyFactUseCase(repository)
+    private val uiModelFactory = KittyFactUiModelFactory()
 
     private lateinit var viewModel: KittyFactViewModel
 
     @Before
     fun setup() {
-        // ViewModel initializes favorites flow immediately; stub it for all tests.
         coEvery { repository.getSavedFacts() } returns flowOf(emptyList())
+        coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, "Init"))
+        viewModel = KittyFactViewModel(
+            getRandomKittyFactUseCase,
+            saveKittyFactUseCase,
+            getSavedKittyFactsUseCase,
+            removeKittyFactUseCase,
+            uiModelFactory,
+        )
+    }
+
+    private suspend fun awaitFact(expected: String) {
+        viewModel.kittyFactUiModel
+            .map { it.discover.fact }
+            .filter { it == expected }
+            .first()
+    }
+
+    private suspend fun awaitError() {
+        viewModel.kittyFactUiModel
+            .map { it.discover.errorResId }
+            .filter { it != null }
+            .first()
+    }
+
+    @Test
+    fun `init triggers fetch and updates discover model on success`() = runTest {
+        awaitFact("Init")
+
+        val ui = viewModel.kittyFactUiModel.value
+        assertEquals("Init", ui.discover.fact)
+        assertFalse(ui.discover.isLoading)
+        assertNull(ui.discover.errorResId)
+
+        coVerify(exactly = 1) { repository.getRandomFact() }
+    }
+
+    @Test
+    fun `init fetch failure exposes error in discover model`() = runTest {
+        coEvery { repository.getRandomFact() } returns Result.failure(Exception("Boom"))
 
         viewModel = KittyFactViewModel(
             getRandomKittyFactUseCase,
             saveKittyFactUseCase,
             getSavedKittyFactsUseCase,
             removeKittyFactUseCase,
+            uiModelFactory,
         )
+
+        awaitError()
+
+        val ui = viewModel.kittyFactUiModel.value
+        assertFalse(ui.discover.isLoading)
+        assertNotNull(ui.discover.errorResId)
     }
 
     @Test
-    fun `fetchFact success updates state`() = runTest {
-        // given
-        val fact = KittyFact(12, "Cats sleep 16 hours a day")
-        coEvery { repository.getRandomFact() } returns Result.success(fact)
+    fun `refresh via onNewFact shows loading then updates fact`() = runTest {
+        awaitFact("Init")
 
-        // when
-        viewModel.fetchFact()
-        advanceUntilIdle()
-
-        // then
-        val state = viewModel.uiState.value
-        assertEquals("Cats sleep 16 hours a day", state.fact)
-        assertFalse(state.isLoading)
-        assertNull(state.errorResId)
-    }
-
-    @Test
-    fun `fetchFact error updates state`() = runTest {
-        // given
-        coEvery { repository.getRandomFact() } returns Result.failure(Exception("Boom"))
-
-        // when
-        viewModel.fetchFact()
-        advanceUntilIdle()
-
-        // then
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertNotNull(state.errorResId)
-    }
-
-    @Test
-    fun `fetchFact shows loading first`() = runTest {
-        // given
         coEvery { repository.getRandomFact() } coAnswers {
             delay(100)
-            Result.success(KittyFact(1, "Test"))
+            Result.success(KittyFact(2, "Next"))
         }
 
-        // when
-        viewModel.fetchFact()
-        runCurrent()
+        viewModel.kittyFactUiModel.value.discover.onNewFact()
 
-        // then
-        assertTrue(viewModel.uiState.value.isLoading)
+        // Wait until we observe the loading state.
+        viewModel.kittyFactUiModel
+            .map { it.discover.isLoading }
+            .filter { it }
+            .first()
+
+        advanceUntilIdle()
+        awaitFact("Next")
+
+        coVerify(exactly = 2) { repository.getRandomFact() }
     }
 
     @Test
-    fun `toggleCurrentFavorite saves when current fact isn't favorited`() = runTest {
-        // given
+    fun `toggle favorite saves when current fact is not in favorites`() = runTest {
         val factText = "Cats have whiskers"
         coEvery { repository.getSavedFacts() } returns flowOf(emptyList())
         coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, factText))
 
-        // recreate VM so favorites stateIn uses the stubbed flow
         viewModel = KittyFactViewModel(
             getRandomKittyFactUseCase,
             saveKittyFactUseCase,
             getSavedKittyFactsUseCase,
             removeKittyFactUseCase,
+            uiModelFactory,
         )
 
-        viewModel.fetchFact()
+        awaitFact(factText)
+
+        viewModel.kittyFactUiModel.value.discover.onToggleFavorite()
         advanceUntilIdle()
 
-        // when
-        viewModel.toggleCurrentFavorite()
-        advanceUntilIdle()
-
-        // then
         coVerify(exactly = 1) { repository.saveFact(match { it.text == factText }) }
         coVerify(exactly = 0) { repository.removeFactById(any()) }
     }
 
     @Test
-    fun `toggleCurrentFavorite removes by id when current fact is already favorited`() = runTest {
-        // given
+    fun `toggle favorite removes by id when current fact already favorited`() = runTest {
         val factText = "Cats purr"
         val existing = KittyFact(id = 123L, text = factText)
 
         coEvery { repository.getSavedFacts() } returns flowOf(listOf(existing))
         coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, factText))
 
-        // recreate VM so favorites stateIn uses the stubbed flow
         viewModel = KittyFactViewModel(
             getRandomKittyFactUseCase,
             saveKittyFactUseCase,
             getSavedKittyFactsUseCase,
             removeKittyFactUseCase,
+            uiModelFactory,
         )
 
-        // let favorites stateIn collect the initial list
+        awaitFact(factText)
+
+        viewModel.kittyFactUiModel.value.discover.onToggleFavorite()
         advanceUntilIdle()
 
-        viewModel.fetchFact()
-        advanceUntilIdle()
-
-        // when
-        viewModel.toggleCurrentFavorite()
-        advanceUntilIdle()
-
-        // then
         coVerify(exactly = 1) { repository.removeFactById(123L) }
         coVerify(exactly = 0) { repository.saveFact(any()) }
     }
 
     @Test
-    fun `toggleCurrentFavorite does nothing when there is an error even if a previous fact exists`() = runTest {
-        // given - first a successful fetch to populate a fact
-        val oldFactText = "Old fact"
-        coEvery { repository.getRandomFact() } returnsMany listOf(
-            Result.success(KittyFact(1, oldFactText)),
-            Result.failure(Exception("offline")),
+    fun `toggle favorite does nothing while error is shown`() = runTest {
+        coEvery { repository.getRandomFact() } returns Result.failure(Exception("offline"))
+
+        viewModel = KittyFactViewModel(
+            getRandomKittyFactUseCase,
+            saveKittyFactUseCase,
+            getSavedKittyFactsUseCase,
+            removeKittyFactUseCase,
+            uiModelFactory,
         )
 
-        // when - fetch succeeds
-        viewModel.fetchFact()
-        advanceUntilIdle()
-        assertEquals(oldFactText, viewModel.uiState.value.fact)
-        assertNull(viewModel.uiState.value.errorResId)
+        awaitError()
 
-        // when - fetch fails (connection lost)
-        viewModel.fetchFact()
-        advanceUntilIdle()
-        assertNotNull(viewModel.uiState.value.errorResId)
-
-        // when - user taps heart while error is shown
-        viewModel.toggleCurrentFavorite()
+        viewModel.kittyFactUiModel.value.discover.onToggleFavorite()
         advanceUntilIdle()
 
-        // then - should NOT save/remove anything
         coVerify(exactly = 0) { repository.saveFact(any()) }
         coVerify(exactly = 0) { repository.removeFactById(any()) }
     }
 
     @Test
-    fun `ensureInitialFactLoaded triggers fetch only once`() = runTest {
-        // given
-        coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, "Init"))
+    fun `remove favorite callback calls repository removeFactById`() = runTest {
+        awaitFact("Init")
 
-        // when
-        viewModel.ensureInitialFactLoaded()
-        viewModel.ensureInitialFactLoaded()
+        viewModel.kittyFactUiModel.value.onRemoveFavorite(7L)
         advanceUntilIdle()
 
-        // then
-        coVerify(exactly = 1) { repository.getRandomFact() }
+        coVerify(exactly = 1) { repository.removeFactById(7L) }
     }
 }

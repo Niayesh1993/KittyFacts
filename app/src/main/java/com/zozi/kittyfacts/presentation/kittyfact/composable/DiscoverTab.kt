@@ -1,4 +1,4 @@
-package com.zozi.kittyfacts.presentation.kittyfact.component
+package com.zozi.kittyfacts.presentation.kittyfact.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,16 +27,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.zozi.kittyfacts.R
-import com.zozi.kittyfacts.presentation.kittyfact.state.KittyFactUiState
+import com.zozi.kittyfacts.presentation.theme.KittyFactsTheme
+import com.zozi.kittyfacts.presentation.kittyfact.composable.model.DiscoverUiModel
 
 @Composable
 fun DiscoverTab(
-    state: KittyFactUiState,
-    onNewFact: () -> Unit,
-    onToggleFavorite: () -> Unit,
-    isFavorited: Boolean,
+    model: DiscoverUiModel,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -66,7 +65,7 @@ fun DiscoverTab(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             when {
-                state.isLoading -> {
+                model.isLoading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -77,9 +76,9 @@ fun DiscoverTab(
                     }
                 }
 
-                state.errorResId != null -> {
+                model.errorResId != null -> {
                     Text(
-                        text = stringResource(state.errorResId),
+                        text = stringResource(model.errorResId),
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.error
                     )
@@ -87,7 +86,7 @@ fun DiscoverTab(
 
                 else -> {
                     Text(
-                        text = state.fact,
+                        text = model.fact,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -101,7 +100,7 @@ fun DiscoverTab(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = onNewFact,
+                    onClick = model.onNewFact,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -112,13 +111,13 @@ fun DiscoverTab(
                 }
 
                 IconButton(
-                    onClick = onToggleFavorite,
-                    enabled = state.fact.isNotEmpty(),
+                    onClick = model.onToggleFavorite,
+                    enabled = model.fact.isNotEmpty(),
                 ) {
                     Icon(
-                        imageVector = if (isFavorited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = if (model.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = stringResource(R.string.favorite),
-                        tint = if (isFavorited) androidx.compose.ui.graphics.Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (model.isFavorite) androidx.compose.ui.graphics.Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -131,6 +130,42 @@ fun DiscoverTab(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiscoverTabPreview() {
+    KittyFactsTheme {
+        DiscoverTab(
+            model = DiscoverUiModel(
+                fact = "Cats sleep 12–16 hours a day.",
+                isLoading = false,
+                errorResId = null,
+                isFavorite = false,
+                onNewFact = {},
+                onToggleFavorite = {},
+            ),
+            modifier = Modifier.padding(16.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiscoverTabLoadingPreview() {
+    KittyFactsTheme {
+        DiscoverTab(
+            model = DiscoverUiModel(
+                fact = "",
+                isLoading = true,
+                errorResId = null,
+                isFavorite = false,
+                onNewFact = {},
+                onToggleFavorite = {},
+            ),
+            modifier = Modifier.padding(16.dp),
         )
     }
 }
