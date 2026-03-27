@@ -33,15 +33,6 @@ class RemoveKittyFactUseCaseTest {
     }
 
     @Test
-    fun `byText calls repository removeFactByText`() = runTest {
-        // when
-        useCase.byText("Cats are great")
-
-        // then
-        coVerify(exactly = 1) { repository.removeFactByText("Cats are great") }
-    }
-
-    @Test
     fun `byId propagates exception when repository delete fails`() = runTest {
         // given
         coEvery { repository.removeFactById(99L) } throws IllegalStateException("db")
@@ -51,16 +42,4 @@ class RemoveKittyFactUseCaseTest {
             runBlocking { useCase.byId(99L) }
         }
     }
-
-    @Test
-    fun `byText propagates exception when repository delete fails`() = runTest {
-        // given
-        coEvery { repository.removeFactByText("fail") } throws IllegalStateException("db")
-
-        // when/then
-        assertThrows(IllegalStateException::class.java) {
-            runBlocking { useCase.byText("fail") }
-        }
-    }
 }
-

@@ -37,8 +37,4 @@ class KittyFactRepositoryImpl @Inject constructor(
     override suspend fun removeFactById(id: Long) {
         dao.deleteFactById(id)
     }
-
-    override suspend fun removeFactByText(text: String) {
-        dao.deleteFactByText(text)
-    }
 }

@@ -126,17 +126,39 @@ class KittyFactViewModelTest {
 
         // then
         coVerify(exactly = 1) { repository.saveFact(match { it.text == factText }) }
-        coVerify(exactly = 0) { repository.removeFactByText(any()) }
+        coVerify(exactly = 0) { repository.removeFactById(any()) }
     }
 
     @Test
-    fun `removeFavoriteById calls repository removeFactById`() = runTest {
+    fun `toggleCurrentFavorite removes by id when current fact is already favorited`() = runTest {
+        // given
+        val factText = "Cats purr"
+        val existing = KittyFact(id = 123L, text = factText)
+
+        coEvery { repository.getSavedFacts() } returns flowOf(listOf(existing))
+        coEvery { repository.getRandomFact() } returns Result.success(KittyFact(1, factText))
+
+        // recreate VM so favorites stateIn uses the stubbed flow
+        viewModel = KittyFactViewModel(
+            getRandomKittyFactUseCase,
+            saveKittyFactUseCase,
+            getSavedKittyFactsUseCase,
+            removeKittyFactUseCase,
+        )
+
+        // let favorites stateIn collect the initial list
+        advanceUntilIdle()
+
+        viewModel.fetchFact()
+        advanceUntilIdle()
+
         // when
-        viewModel.removeFavoriteById(7L)
+        viewModel.toggleCurrentFavorite()
         advanceUntilIdle()
 
         // then
-        coVerify(exactly = 1) { repository.removeFactById(7L) }
+        coVerify(exactly = 1) { repository.removeFactById(123L) }
+        coVerify(exactly = 0) { repository.saveFact(any()) }
     }
 
     @Test
@@ -165,7 +187,7 @@ class KittyFactViewModelTest {
 
         // then - should NOT save/remove anything
         coVerify(exactly = 0) { repository.saveFact(any()) }
-        coVerify(exactly = 0) { repository.removeFactByText(any()) }
+        coVerify(exactly = 0) { repository.removeFactById(any()) }
     }
 
     @Test

@@ -18,7 +18,4 @@ interface KittyFactDao {
 
     @Query("DELETE FROM kitty_facts WHERE id = :id")
     suspend fun deleteFactById(id: Long)
-
-    @Query("DELETE FROM kitty_facts WHERE text = :text")
-    suspend fun deleteFactByText(text: String)
 }

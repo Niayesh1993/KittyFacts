@@ -23,6 +23,7 @@ kotlinxSerializationJson = "1.7.3"
 retrofitKotlinxSerialization = "1.0.0"
 mockk = "1.13.12"
 coreSplashscreen = "1.0.1"
+material = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 hiltNavigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 androidxCoreSplashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

@@ -9,9 +9,4 @@ class RemoveKittyFactUseCase @Inject constructor(
     suspend fun byId(id: Long) {
         repository.removeFactById(id)
     }
-
-    suspend fun byText(text: String) {
-        repository.removeFactByText(text)
-    }
 }
-

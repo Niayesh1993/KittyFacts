@@ -20,6 +20,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"https://catfact.ninja/\"")
     }
 
     buildTypes {
@@ -29,6 +31,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("Boolean", "HTTP_LOGGING", "false")
+        }
+        debug {
+            buildConfigField("Boolean", "HTTP_LOGGING", "true")
         }
     }
     compileOptions {
@@ -41,6 +47,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -87,10 +94,9 @@ dependencies {
     // Splash screen
     implementation(libs.androidxCoreSplashscreen)
 
-
     // Material Components (needed for XML themes like Theme.Material3.*)
-    implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.material)
 
     // Material icons (extended set)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 }

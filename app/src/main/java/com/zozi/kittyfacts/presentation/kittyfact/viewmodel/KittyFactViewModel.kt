@@ -100,9 +100,10 @@ class KittyFactViewModel @Inject constructor(
         if (factText.isBlank()) return
 
         viewModelScope.launch {
-            val isAlreadyFavorite = favorites.value.any { it.text == factText }
-            if (isAlreadyFavorite) {
-                removeFact.byText(factText)
+            val existingFavorite = favorites.value.firstOrNull { it.text == factText }
+            if (existingFavorite != null) {
+                // Remove by id to keep the data layer API simple and avoid text-based deletes.
+                removeFact.byId(existingFavorite.id)
             } else {
                 saveKittyFact(KittyFact(text = factText))
             }

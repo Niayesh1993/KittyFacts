@@ -11,7 +11,5 @@ interface KittyFactRepository {
 
     suspend fun removeFactById(id: Long)
 
-    suspend fun removeFactByText(text: String)
-
     fun getSavedFacts(): Flow<List<KittyFact>>
 }
