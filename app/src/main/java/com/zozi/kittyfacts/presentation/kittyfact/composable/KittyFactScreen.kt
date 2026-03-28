@@ -41,6 +41,8 @@ private fun KittyFactScreenContent(
         favorites = {
             FavoritesTab(
                 favorites = uiModel.favorites,
+                query = uiModel.favoritesQuery,
+                onQueryChange = uiModel.onFavoritesQueryChange,
                 onRemoveFavorite = uiModel.onRemoveFavorite,
             )
         }
@@ -65,6 +67,8 @@ private fun KittyFactScreenPreview() {
                     KittyFact(id = 1, text = "Cats purr to communicate."),
                     KittyFact(id = 2, text = "A group of cats is called a clowder."),
                 ),
+                favoritesQuery = "",
+                onFavoritesQueryChange = {},
                 onRemoveFavorite = {},
             ),
         )

@@ -20,6 +20,9 @@
     </plurals>
     <string name="available_offline">Available offline</string>
     <string name="delete_favorite">Delete favorite</string>
+    <string name="favorites_search_placeholder">Search favorites</string>
+    <string name="favorites_no_results_title">No matches</string>
+    <string name="favorites_no_results_message">No saved facts match “%1$s”.</string>
 
     <!-- Empty favorites -->
     <string name="no_favorites_yet">No favorites yet</string>

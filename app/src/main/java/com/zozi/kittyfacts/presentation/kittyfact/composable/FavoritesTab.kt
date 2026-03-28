@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,6 +24,8 @@ import com.zozi.kittyfacts.presentation.theme.KittyFactsTheme
 @Composable
 fun FavoritesTab(
     favorites: List<KittyFact>,
+    query: String,
+    onQueryChange: (String) -> Unit,
     onRemoveFavorite: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -40,10 +43,24 @@ fun FavoritesTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            placeholder = { Text(text = stringResource(R.string.favorites_search_placeholder)) },
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         if (favorites.isEmpty()) {
-            FavoritesEmptyState()
+            if (query.isBlank()) {
+                FavoritesEmptyState()
+            } else {
+                FavoritesNoResultsState(query = query)
+            }
         } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -60,6 +77,25 @@ fun FavoritesTab(
     }
 }
 
+@Composable
+private fun FavoritesNoResultsState(
+    query: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(R.string.favorites_no_results_title),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.favorites_no_results_message, query),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun FavoritesTabPreview() {
@@ -70,6 +106,8 @@ private fun FavoritesTabPreview() {
                 KittyFact(id = 2, text = "A group of cats is called a clowder."),
                 KittyFact(id = 3, text = "Cats sleep 12–16 hours a day."),
             ),
+            query = "",
+            onQueryChange = {},
             onRemoveFavorite = {},
             modifier = Modifier.padding(16.dp)
         )
@@ -82,6 +120,22 @@ private fun FavoritesTabEmptyPreview() {
     KittyFactsTheme {
         FavoritesTab(
             favorites = emptyList(),
+            query = "",
+            onQueryChange = {},
+            onRemoveFavorite = {},
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesTabNoResultsPreview() {
+    KittyFactsTheme {
+        FavoritesTab(
+            favorites = emptyList(),
+            query = "sleep",
+            onQueryChange = {},
             onRemoveFavorite = {},
             modifier = Modifier.padding(16.dp)
         )

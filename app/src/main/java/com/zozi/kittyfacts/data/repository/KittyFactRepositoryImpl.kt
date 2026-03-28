@@ -34,6 +34,12 @@ class KittyFactRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun searchSavedFacts(query: String): Flow<List<KittyFact>> {
+        return dao.searchFacts(query).map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
     override suspend fun removeFactById(id: Long) {
         dao.deleteFactById(id)
     }

@@ -12,4 +12,6 @@ interface KittyFactRepository {
     suspend fun removeFactById(id: Long)
 
     fun getSavedFacts(): Flow<List<KittyFact>>
+
+    fun searchSavedFacts(query: String): Flow<List<KittyFact>>
 }

@@ -16,6 +16,15 @@ interface KittyFactDao {
     @Query("SELECT * FROM kitty_facts ORDER BY id DESC")
     fun getAllFacts(): Flow<List<KittyFactEntity>>
 
+    @Query(
+        """
+        SELECT * FROM kitty_facts
+        WHERE text LIKE '%' || :query || '%' COLLATE NOCASE
+        ORDER BY id DESC
+        """
+    )
+    fun searchFacts(query: String): Flow<List<KittyFactEntity>>
+
     @Query("DELETE FROM kitty_facts WHERE id = :id")
     suspend fun deleteFactById(id: Long)
 }

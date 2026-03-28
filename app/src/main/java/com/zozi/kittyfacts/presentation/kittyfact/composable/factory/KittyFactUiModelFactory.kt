@@ -10,10 +10,14 @@ class KittyFactUiModelFactory @Inject constructor() {
     fun make(
         discover: DiscoverUiModel,
         favorites: List<KittyFact>,
+        favoritesQuery: String,
+        onFavoritesQueryChange: (String) -> Unit,
         onRemoveFavorite: (Long) -> Unit,
     ) = KittyFactUiModel(
         discover = discover,
         favorites = favorites,
+        favoritesQuery = favoritesQuery,
+        onFavoritesQueryChange = onFavoritesQueryChange,
         onRemoveFavorite = onRemoveFavorite,
     )
 }
