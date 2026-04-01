@@ -99,4 +99,6 @@ dependencies {
 
     // Material icons (extended set)
     implementation(libs.androidx.compose.material.icons.extended)
+
+    androidTestImplementation(libs.androidxRoomTesting)
 }

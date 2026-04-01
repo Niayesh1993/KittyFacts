@@ -57,6 +57,7 @@ okhttpLoggingInterceptor = { group = "com.squareup.okhttp3", name = "logging-int
 androidxRoomRuntime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidxRoomKtx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidxRoomCompiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidxRoomTesting = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
 # Testing
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
