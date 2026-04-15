@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -70,7 +71,9 @@ class KittyFactViewModel @Inject constructor(
                 onFavoritesQueryChange = ::onFavoritesQueryChange,
                 onRemoveFavorite = ::removeFavoriteById,
             )
-        }.stateIn(
+        }
+            .onStart{ fetchFact() }
+            .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = kittyFactUiModelFactory.make(
@@ -89,9 +92,6 @@ class KittyFactViewModel @Inject constructor(
             )
         )
 
-    init {
-        fetchFact()
-    }
 
     private fun onFavoritesQueryChange(query: String) {
         favoritesQuery.value = query

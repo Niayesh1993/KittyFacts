@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zozi.kittyfacts.domain.model.KittyFact
 import com.zozi.kittyfacts.presentation.kittyfact.composable.model.DiscoverUiModel
 import com.zozi.kittyfacts.presentation.kittyfact.composable.model.KittyFactUiModel
@@ -17,7 +18,7 @@ fun KittyFactScreen(
     modifier: Modifier = Modifier,
     viewModel: KittyFactViewModel = hiltViewModel()
 ) {
-    val uiModel by viewModel.kittyFactUiModel.collectAsState()
+    val uiModel by viewModel.kittyFactUiModel.collectAsStateWithLifecycle()
 
     KittyFactScreenContent(
         modifier = modifier,

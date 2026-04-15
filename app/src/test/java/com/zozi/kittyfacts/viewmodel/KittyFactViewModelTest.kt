@@ -81,7 +81,7 @@ class KittyFactViewModelTest {
     }
 
     @Test
-    fun `init triggers fetch and updates discover model on success`() = runTest {
+    fun `onStart triggers fetch and updates discover model on success`() = runTest {
         startUiModelCollection()
 
         awaitFact("Init")
@@ -96,8 +96,6 @@ class KittyFactViewModelTest {
 
     @Test
     fun `init fetch failure exposes error in discover model`() = runTest {
-        startUiModelCollection()
-
         coEvery { repository.getRandomFact() } returns Result.failure(Exception("Boom"))
 
         viewModel = KittyFactViewModel(
@@ -109,6 +107,7 @@ class KittyFactViewModelTest {
             uiModelFactory,
         )
 
+        startUiModelCollection()
         awaitError()
 
         val ui = viewModel.kittyFactUiModel.value
@@ -143,8 +142,6 @@ class KittyFactViewModelTest {
 
     @Test
     fun `toggle favorite saves when current fact is not in favorites`() = runTest {
-        startUiModelCollection()
-
         val factText = "Cats have whiskers"
         coEvery { repository.getSavedFacts() } returns flowOf(emptyList())
         coEvery { repository.searchSavedFacts(any()) } returns flowOf(emptyList())
@@ -159,6 +156,7 @@ class KittyFactViewModelTest {
             uiModelFactory,
         )
 
+        startUiModelCollection()
         awaitFact(factText)
 
         viewModel.kittyFactUiModel.value.discover.onToggleFavorite()
@@ -170,8 +168,6 @@ class KittyFactViewModelTest {
 
     @Test
     fun `toggle favorite removes by id when current fact already favorited`() = runTest {
-        startUiModelCollection()
-
         val factText = "Cats purr"
         val existing = KittyFact(id = 123L, text = factText)
 
@@ -188,6 +184,7 @@ class KittyFactViewModelTest {
             uiModelFactory,
         )
 
+        startUiModelCollection()
         awaitFact(factText)
 
         // Wait for the debounced favorites flow to emit (favoritesQuery starts blank).
@@ -202,8 +199,6 @@ class KittyFactViewModelTest {
 
     @Test
     fun `toggle favorite does nothing while error is shown`() = runTest {
-        startUiModelCollection()
-
         coEvery { repository.getRandomFact() } returns Result.failure(Exception("offline"))
 
         viewModel = KittyFactViewModel(
@@ -215,6 +210,7 @@ class KittyFactViewModelTest {
             uiModelFactory,
         )
 
+        startUiModelCollection()
         awaitError()
 
         viewModel.kittyFactUiModel.value.discover.onToggleFavorite()
